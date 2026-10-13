@@ -297,7 +297,7 @@ Material for the presentation; each item cost at least one broken run.
 | OWASP CRS | v4.25.2 (LTS) | tarball sha256 |
 | CRS referer-hardening plugin | commit 3f3120d | tarball sha256 |
 | rs-http-apilab | v1.0.0 release binary | sha256 |
-| v-http-apilab | v1.0.0 release binary (`v-http-lab-linux-amd64`) | sha256 |
+| v-http-apilab | v1.0.0 release binary | sha256 |
 
 Bump a version by changing its `ARG` pair (version and sha256) in the `Dockerfile`; the build fails if the checksum does not match.
 
