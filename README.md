@@ -33,7 +33,7 @@ Requirements: Docker with Compose v2, `make`, `curl`, `bash`; `jq` for `make exp
 
 ```sh
 make allinone-up            # all-in-one on http://localhost:8080 (Rust API)
-make test-allinone          # 180 checks: statuses + proof of arrival + rate limits
+make test-allinone          # 184 checks: statuses + proof of arrival + rate limits
 make explain-allinone       # which rule decided each test case (audit log)
 
 make split-up               # split layout on http://localhost:8090
@@ -214,21 +214,21 @@ Coraza-specific operators used: `@restpath` (path templates into `ARGS_PATH`) an
 
 ## The test suite: proof of arrival
 
-`tests/waf-test.sh` sends 89 requests (legitimate and malicious), each labeled with a unique `X-Test-Case` header, then reads the simulator's `/lab/calls` buffer:
+`tests/waf-test.sh` sends 91 requests (legitimate and malicious), each labeled with a unique `X-Test-Case` header, then reads the simulator's `/lab/calls` buffer:
 
 - blocked at the edge: status matches AND the case is **absent** from the API buffer AND the body says `"source":"edge"`;
 - allowed: status matches AND the case is **present**;
 - blocked in the response phase (data leak): the case is **present** (the API answered) but the client got 403.
 
 ```text
-PASS case-024-ip-denylist                         status 403
-PASS case-069-crs-sqli                            status 403
-PASS case-088-canary-in-body                      status 403
+PASS case-026-ip-denylist                         status 403
+PASS case-071-crs-sqli                            status 403
+PASS case-090-canary-in-body                      status 403
 ...
-PASS case-024-ip-denylist                         reached API: no
-PASS case-088-canary-in-body                      reached API: yes
+PASS case-026-ip-denylist                         reached API: no
+PASS case-090-canary-in-body                      reached API: yes
 PASS login burst (10 in a row) ->  401 401 401 401 401 401 429 429 429 429
-== 180 passed, 0 failed
+== 184 passed, 0 failed
 ```
 
 Client IPs are simulated with `X-Forwarded-For` (nginx trusts the Docker networks as a proxy in this lab), so the same suite exercises the denylist, the admin ACL, the trusted scanner and per-IP rate limits.
@@ -236,7 +236,7 @@ Client IPs are simulated with `X-Forwarded-For` (nginx trusts the Docker network
 `tests/explain.sh` (`make explain-allinone CASE=...`) reads the JSON audit log and shows which rules decided each case:
 
 ```text
-case-042-no-ua-no-accept  status=403
+case-044-no-ua-no-accept  status=403
     10220  Request without User-Agent
     10230  Request without Accept header
     920320  Missing User Agent Header
@@ -342,8 +342,8 @@ Dois exemplos:
 - **split**: WAF e API em containers separados, com a API numa rede interna sem porta publicada e sem saída para a internet (`make split-up`, porta 8090).
 
 ```sh
-make allinone-up && make test-allinone     # 180 verificações
-make explain-allinone CASE=case-042        # quais regras decidiram o caso
+make allinone-up && make test-allinone     # 184 verificações
+make explain-allinone CASE=no-ua-no-accept        # quais regras decidiram o caso
 APILAB=v make split-up && make test-split  # com o simulador em V
 ```
 

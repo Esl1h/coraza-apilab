@@ -154,6 +154,7 @@ The three 404 rules force `ctl:auditEngine=On`: 404 is excluded from `SecAuditLo
 | ID | Phase | Action | What and why | Test |
 | --- | --- | --- | --- | --- |
 | 10900 | 1 | ctl | `Expect: 100-continue` on upload and webhook routes is not a restricted header for CRS 920450 (false positive found by the test suite) | `body-1.5m-api` |
+| 10910 | 1 | ctl | `GET /openapi.json` skips the canary DLP rule 19100: the public spec documents the canary string (false positive found when importing the spec into an API client) | `openapi-spec` |
 
 ## rules-after/900-config-exclusions.conf
 
