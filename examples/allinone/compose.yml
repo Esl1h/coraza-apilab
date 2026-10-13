@@ -1,0 +1,31 @@
+# All-in-one: nginx + Coraza + the API simulator in ONE container.
+#
+#   client -> :8080 nginx/Coraza -> 127.0.0.1:9000 API (same container)
+#
+# The API port is not published: from outside, nginx is the only way in.
+# Pick the simulator with APILAB=rs (Rust, default) or APILAB=v (V).
+#
+#   docker compose -f examples/allinone/compose.yml up -d --build
+#   APILAB=v docker compose -f examples/allinone/compose.yml up -d --build
+
+name: coraza-apilab-allinone
+
+services:
+  coraza-apilab:
+    build:
+      context: ../..
+      target: allinone
+      args:
+        APILAB: ${APILAB:-rs}
+    image: coraza-apilab:allinone-${APILAB:-rs}
+    container_name: coraza-apilab
+    # tini as PID 1: forwards signals to the entrypoint and reaps zombies
+    # of the two processes.
+    init: true
+    ports:
+      - "8080:8080"
+    environment:
+      # Enables /lab/calls (proof of arrival used by the test suite).
+      LAB_ADMIN_TOKEN: ${LAB_TOKEN:-lab-token}
+      LOG_LEVEL: info
+    restart: unless-stopped

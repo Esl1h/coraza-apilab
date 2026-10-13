@@ -1,0 +1,60 @@
+# Split: the WAF and the API in separate containers.
+#
+#   client -> :8090 waf (nginx/Coraza) --backend network--> api:8080
+#
+# The API is attached only to an internal network: it has no published
+# port and no route to the internet. The only path to it is the WAF.
+# This is the layout you would run in production (or as two pods /
+# a sidecar in Kubernetes).
+#
+#   docker compose -f examples/split/compose.yml up -d --build
+#   APILAB=v docker compose -f examples/split/compose.yml up -d --build
+
+name: coraza-apilab-split
+
+services:
+  api:
+    build:
+      context: ../..
+      target: api
+      args:
+        APILAB: ${APILAB:-rs}
+    image: coraza-apilab:api-${APILAB:-rs}
+    container_name: coraza-apilab-api
+    environment:
+      PORT: "8080"
+      LAB_ADMIN_TOKEN: ${LAB_TOKEN:-lab-token}
+      LOG_LEVEL: info
+    networks:
+      - backend
+    # The simulator writes nothing to disk: lock the container down.
+    read_only: true
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    restart: unless-stopped
+
+  waf:
+    build:
+      context: ../..
+      target: waf
+    image: coraza-apilab:waf
+    container_name: coraza-apilab-waf
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "8090:8080"
+    environment:
+      APILAB_UPSTREAM: api:8080
+    networks:
+      - frontend
+      - backend
+    restart: unless-stopped
+
+networks:
+  frontend: {}
+  backend:
+    # No external connectivity: the API cannot call out (SSRF blast
+    # radius) and nobody outside Docker can call in.
+    internal: true
