@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "POST /api/v1/users",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "email", "department", "role"],
+  "properties": {
+    "name": {"type": "string", "minLength": 1, "maxLength": 100},
+    "email": {"type": "string", "maxLength": 254, "pattern": "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"},
+    "department": {"type": "string", "minLength": 1, "maxLength": 50},
+    "role": {"enum": ["admin", "operator", "viewer"]}
+  }
+}

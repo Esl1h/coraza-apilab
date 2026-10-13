@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "POST /api/v1/tickets",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["title", "severity"],
+  "properties": {
+    "title": {"type": "string", "minLength": 1, "maxLength": 120},
+    "description": {"type": "string", "maxLength": 2000},
+    "severity": {"enum": ["low", "medium", "high", "critical"]},
+    "tags": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {"type": "string", "minLength": 1, "maxLength": 40}
+    }
+  }
+}
