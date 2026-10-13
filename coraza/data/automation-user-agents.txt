@@ -1,0 +1,15 @@
+# automation-user-agents.txt: HTTP libraries with their default User-Agent.
+# Legitimate integrations set a descriptive User-Agent; credential
+# stuffing kits rarely bother. Only enforced on the login route
+# (rule 10220), never on the whole API.
+python-requests
+python-urllib
+python-httpx
+aiohttp
+go-http-client
+okhttp
+axios/
+node-fetch
+undici
+libwww-perl
+java/

@@ -1,0 +1,14 @@
+# bad-user-agents.txt: attack tools NOT already covered by the CRS list
+# (rules/scanners-user-agents.data covers sqlmap, nikto, nuclei,
+# gobuster, wpscan, zgrab and more). Matched case-insensitively as
+# substrings by @pmFromFile (rule 10210).
+ffuf
+hydra
+medusa
+patator
+dirb/
+katana
+gospider
+hakrawler
+scrapy
+crackmapexec
