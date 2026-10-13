@@ -128,9 +128,8 @@ ADD --checksum=sha256:e2a216aa596914ce72663e6b111bf24192cb59216ddbe84c76d5c352c6
 	/out/apilab
 
 FROM debian:trixie-slim AS apilab-v
-# The release asset kept the project's former name (v-http-lab).
 ADD --checksum=sha256:a531c9d13c948b67d9c8db5fa36568dc927245441ff8596a4daeab1b68e1c389 \
-	https://github.com/Esl1h/v-http-apilab/releases/download/v1.0.0/v-http-lab-linux-amd64 \
+	https://github.com/Esl1h/v-http-apilab/releases/download/v1.0.0/v-http-apilab-linux-amd64 \
 	/out/apilab
 
 FROM apilab-${APILAB} AS apilab
