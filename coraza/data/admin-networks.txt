@@ -1,0 +1,5 @@
+# admin-networks.txt: networks allowed to reach administrative routes
+# (/admin, /internal, /metrics, /lab/calls; rule 10020).
+# 10.10.0.0/16 plays the corporate VPN in this lab.
+10.10.0.0/16
+127.0.0.1

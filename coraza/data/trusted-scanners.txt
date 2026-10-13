@@ -1,0 +1,5 @@
+# trusted-scanners.txt: your own authorised vulnerability scanners
+# (rule 10030). Their traffic is inspected and logged but never
+# blocked, so a pentest is not silently stopped by the WAF and its
+# findings show up in the audit log.
+10.10.99.10
