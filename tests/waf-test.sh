@@ -113,6 +113,8 @@ t graphql                200 yes "${json[@]}" -d '{"query":"query { users(first:
 t webhook                200 yes "${json[@]}" -d '{"event":"invoice.paid","id":"evt_123","amount":4200}' /api/v1/webhooks/receive
 t upload                 201 yes -F 'file=@/etc/hostname;filename=report.txt' /api/v1/files/upload
 t static                 200 yes /static/robots.txt
+t openapi-spec           200 yes /openapi.json
+t swagger-ui             200 yes /docs
 t referer                200 yes -H 'Referer: https://portal.lab.example/dashboard?tab=1' /version
 t method-put             200 yes -X PUT /lab/method
 t slow                   200 yes '/lab/slow?ms=100'
