@@ -1,0 +1,75 @@
+# default.conf: rendered at container start by the official nginx image
+# (envsubst over /etc/nginx/templates/*.template). Only variables that
+# exist in the environment are replaced, so nginx's own $variables are
+# left untouched.
+#
+# APILAB_UPSTREAM: where the API simulator listens.
+#   allinone example: 127.0.0.1:9000 (same container)
+#   split example   : api:8080       (another container)
+
+upstream apilab {
+    server ${APILAB_UPSTREAM};
+    # Reuse upstream connections instead of a TCP handshake per request.
+    keepalive 16;
+}
+
+# Public listener: everything here goes through Coraza.
+server {
+    listen 8080 default_server;
+    server_name _;
+
+    include /etc/nginx/snippets/edge-errors.conf;
+
+    # Every response, including the ones nginx/Coraza generate, carries
+    # the id that links the access log, the WAF audit log and the API log.
+    add_header X-Request-ID $request_id always;
+
+    location / {
+        limit_req zone=api burst=40 nodelay;
+        limit_conn conn 20;
+        include /etc/nginx/snippets/proxy.conf;
+    }
+
+    # Credential endpoint: the strict login zone on top of the general one.
+    location = /api/v1/auth/login {
+        limit_req zone=login burst=5 nodelay;
+        limit_req zone=api burst=40 nodelay;
+        limit_conn conn 20;
+        include /etc/nginx/snippets/proxy.conf;
+    }
+
+    # Streaming endpoint: response body inspection would hold the whole
+    # stream until it ends (coraza_delay_response_headers). This shows
+    # the per-location override: the parent rules are inherited and the
+    # line below is appended, creating a second WAF instance for this
+    # location only. Request inspection (phases 1 and 2) still applies.
+    location = /lab/stream {
+        coraza_rules 'SecResponseBodyAccess Off';
+        proxy_buffering off;
+        limit_req zone=api burst=40 nodelay;
+        include /etc/nginx/snippets/proxy.conf;
+    }
+}
+
+# Loopback-only listener for the container's own health checks and for
+# metrics scraping by a local agent. No WAF and no rate limit: a health
+# probe must never be blocked by a security rule or throttled. It is not
+# published, so it is unreachable from outside the container.
+server {
+    listen 127.0.0.1:8081;
+    coraza off;
+    access_log off;
+
+    location = /waf-health {
+        default_type text/plain;
+        return 200 "ok\n";
+    }
+
+    location = /health {
+        proxy_pass http://apilab;
+    }
+
+    location = /nginx_status {
+        stub_status;
+    }
+}
